@@ -4,6 +4,14 @@
 
 The broader THEDAN concept combines camera-based road inspection with location-aware monitoring and reporting. This repository documents the computer-vision/edge-inference component; GPS integration, fleet-level monitoring, cloud workflows, and a complete vehicle-mounted deployment should only be described as implemented when their code and test evidence are added here.
 
+## My Contributions
+
+- **Model training:** Prepared the YOLOv5n training workflow and worked on training/evaluating the pothole detector using the configured dataset.
+- **Model export and deployment:** Exported the trained model to TensorFlow Lite, applied INT8 quantization, and deployed the model for CPU-only inference on Raspberry Pi 4.
+- **Edge optimization:** Optimized inference for constrained ARM hardware, including reducing input resolution to 320 × 320, configuring multi-threaded inference, and reducing preprocessing overhead.
+- **Performance profiling:** Measured runtime throughput and latency and tracked system telemetry such as CPU usage, memory usage, and temperature; compared performance with and without logging.
+- **End-to-end pipeline:** Worked on the camera/video inference pipeline, confidence filtering, non-maximum suppression, bounding-box output, and runtime logging.
+
 ## Project Scope
 
 Urban roads develop potholes and other visible defects that can create safety risks and maintenance costs. THEDAN explores using an embedded edge device to detect road anomalies locally and support infrastructure-monitoring workflows without relying on a GPU or continuous cloud inference.
