@@ -1,156 +1,128 @@
-# 🚀 Edge AI Pothole Detection on Raspberry Pi (ARM CPU Optimized)
+# THEDAN — Edge-AI Urban Infrastructure Monitoring
 
-Real-time pothole detection system deployed on Raspberry Pi 4 (ARM Cortex-A72) using an INT8-quantized YOLOv5n model with CPU-only inference.
+**THEDAN** is an edge-AI prototype for continuous urban infrastructure monitoring. This repository contains the road-anomaly detection and Raspberry Pi deployment component: an INT8-quantized YOLOv5n model running on Raspberry Pi 4 using CPU-only inference.
 
----
+The broader THEDAN concept combines camera-based road inspection with location-aware monitoring and reporting. This repository documents the computer-vision/edge-inference component; GPS integration, fleet-level monitoring, cloud workflows, and a complete vehicle-mounted deployment should only be described as implemented when their code and test evidence are added here.
 
-## 🧠 My Contribution
-- Designed and optimized a full-edge AI inference pipeline
-- Achieved ~15 FPS real-time inference (CPU-only)
-- Implemented multi-threading + resolution optimization
-- Performed system profiling (FPS, latency, temperature)
+## Project Scope
 
----
+Urban roads develop potholes and other visible defects that can create safety risks and maintenance costs. THEDAN explores using an embedded edge device to detect road anomalies locally and support infrastructure-monitoring workflows without relying on a GPU or continuous cloud inference.
 
-## ⚡ Key Results
-- mAP@0.5: 76.3%
-- FPS: 13–16.6
-- Latency: ~66 ms
-- Model Size: 3.66MB → 1.93MB (~47% reduction)
-- Performance Gain: ~5×
+### Current repository implementation
 
----
+- YOLOv5n object detection configured for pothole detection.
+- Exported TensorFlow Lite INT8 model for Raspberry Pi 4 (ARM Cortex-A72).
+- Camera/video inference scripts and post-processing pipeline.
+- Confidence filtering, non-maximum suppression, and bounding-box output.
+- Runtime logging and sample detection/system telemetry.
+- Training/export commands and recorded evaluation artifacts.
 
-## 🧠 Problem Statement
-Road surface damage causes safety risks and maintenance issues.
+### Broader THEDAN direction
 
-This project builds a low-power, real-time edge AI system capable of detecting potholes without GPU/NPU acceleration.
+- Vehicle-mounted camera and GPS for location-aware road observations.
+- Continuous road-condition monitoring in real operating environments.
+- Aggregation of detected issues into infrastructure-monitoring workflows.
 
----
+These broader capabilities are project goals and should not be assumed to be implemented in this repository unless the corresponding source code, hardware integration, and test evidence are present.
 
-## 🏗 System Pipeline
+## System Overview
 
-Camera → Preprocessing → TFLite Inference → Filtering → NMS → Output → Logging
+**Current edge-inference path**
 
----
+Camera or video input → frame preprocessing → INT8 TensorFlow Lite inference → confidence filtering → non-maximum suppression → bounding-box output → telemetry logging.
 
-## 📊 Model Summary
+## Model and Evaluation
 
-| Metric | Value |
-|-------|------|
+The repository and recorded artifacts report the following figures. Reproduce the evaluation and benchmark on the target device before treating them as independently verified.
+
+| Metric | Reported value |
+|---|---:|
 | Model | YOLOv5n |
-| Params | 1.76M |
-| GFLOPs | 4.1 |
-| Input | 320×320 |
+| Input resolution | 320 × 320 |
+| Parameters | approximately 1.76 million |
+| Dataset images | 2,602 |
+| Annotations | 9,652 |
+| Classes | 1 (pothole) |
 | mAP@0.5 | 76.3% |
+| Precision | 80.5% |
+| Recall | 71.2% |
+| INT8 model size | approximately 1.93 MB |
+| Raspberry Pi 4 throughput | approximately 13–16.6 FPS in recorded benchmarks |
+| Approximate latency at 15 FPS | 66 ms/frame |
 
----
+Results are sensitive to input resolution, model/runtime versions, camera format, thread count, and logging overhead. These values describe the road-anomaly detector, not the end-to-end performance of a complete city-scale infrastructure-monitoring system.
 
-## 📦 Dataset
-- Images: 2602  
-- Annotations: 9652  
-- Classes: 1 (pothole)  
-- Avg objects/image: ~3.7  
-- Source: Roboflow  
+## Hardware and Software
 
----
-
-## ⚙️ Optimization Strategy
-- Reduced input resolution (640 → 320)
-- Matched camera input to model size
-- Used 4-thread inference
-- Applied INT8 quantization
-- Reduced preprocessing overhead
-
----
-
-## 🖥 Edge Deployment
-
-Hardware:
+**Target hardware**
 - Raspberry Pi 4
-- ARM Cortex-A72
-- CPU-only
+- ARM Cortex-A72 CPU
+- Camera or video input source
 
-Software:
-- TensorFlow Lite
+**Software stack**
+- Python
+- TensorFlow Lite runtime
 - OpenCV
 - NumPy
+- PyTorch/YOLOv5 for training and export
+
+## Repository Structure
+
+```text
+data/                 Dataset configuration
+diagrams/             System, inference, and model-workflow diagrams
+edge/                 Real-time camera and video inference scripts
+models/               Model files (FP32 and INT8 TFLite)
+results/              Sample telemetry and evaluation plots
+training/             Training and export command references
+README.md             Project documentation
+```
+
+## Setup and Run
+
+Use a Raspberry Pi OS environment compatible with the dependencies and TensorFlow Lite runtime.
+
+```bash
+sudo apt update
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+python edge/realtime_inference.py
+```
+
+For video-file inference, inspect the arguments and input handling in `edge/video_inference.py` before running it. Camera device names and runtime dependencies may need adjustment for your hardware.
+
+## Training and Export
+
+Install the training dependencies in a separate environment:
+
+```bash
+pip install -r requirements_training.txt
+```
+
+The recorded training configuration is available in `training/train_command.txt`; the export command is in `training/export_command.txt`. Review `data/data.yaml` and ensure the referenced dataset is available locally before training. Dataset imagery is not necessarily included in this repository.
+
+## Evidence and Validation
+
+- Sample detections and system metrics are stored under `results/`.
+- Evaluation curves are stored under `results/`.
+- Deployment benchmarks should specify Raspberry Pi model, OS, runtime, model input size, thread count, and whether logging is enabled.
+- The repository currently focuses on pothole detection. Adding GPS tagging, uploading/aggregating detections, or broader anomaly classes requires implementation and validation of those components.
+
+## Roadmap
+
+- Integrate GPS coordinates and timestamps with each detected road anomaly.
+- Define an event record format for detections, confidence, location, and device status.
+- Add reliable local buffering and optional synchronization for intermittent connectivity.
+- Evaluate detection quality across diverse roads, lighting, weather, and camera mounting conditions.
+- Build a map/dashboard for reviewing and prioritizing road-maintenance observations.
+- Benchmark sustained performance, power, storage, and thermal behavior in realistic deployment conditions.
+
+## License and Attribution
+
+This repository includes work derived from the upstream project [Visionx_road_anomaly_edge-detection-arm](https://github.com/yashi-here/Visionx_road_anomaly_edge-detection-arm). Preserve applicable upstream attribution, notices, and license terms when modifying or redistributing the code. The existing MIT license should be read together with the upstream project's licensing and the licenses of included dependencies and datasets.
 
 ---
 
-## 🚀 Performance
-
-| Input Size | FPS |
-|-----------|-----|
-| 416×416 | ~3 |
-| 320×320 | 13–16.6 |
-
-Latency: ~66 ms/frame
-
----
-
-## 🌡 Stability
-- Temperature: 46°C – 66°C
-- No thermal throttling
-- Stable long runs
-
----
-
-## 📊 Logs
-Tracked:
-- FPS
-- CPU
-- RAM
-- Temperature
-
-Files:
-- results/sample_detection.csv
-- results/sample_system_metrics.csv
-
----
-
-## 🛠 Installation
-
-Run:
-
-    sudo apt update
-    pip install -r requirements.txt
-    python edge/realtime_inference.py
-
----
-
-## 🧪 Training
-
-Run:
-
-    pip install -r requirements_training.txt
-
-    python train.py --img 320 --batch 16 --epochs 100 --data data.yaml --weights yolov5n.pt
-
----
-
-## 📂 Structure
-
-    models/
-    edge/
-    training/
-    results/
-    diagrams/
-    data/
-
----
-
-## 🔮 Future Work
-- NPU acceleration
-- Distributed edge systems
-- Cloud analytics
-
----
-
-## 🏆 Conclusion
-Efficient models + quantization + system optimization enable real-time vision on ARM CPUs without GPUs.
-
----
-
-## 📜 License
-MIT License
+**Status:** Edge pothole-detection component of THEDAN. The complete vehicle-mounted, GPS-integrated, continuous urban-infrastructure platform should be described as fully implemented only after its integration is present in this repository and tested.
